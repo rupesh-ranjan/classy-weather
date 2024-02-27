@@ -1,5 +1,6 @@
 import React from "react";
 import Weather from "./Weather";
+import Input from "./Input";
 
 function convertToFlag(countryCode) {
   const codePoints = countryCode
@@ -13,18 +14,19 @@ function convertToFlag(countryCode) {
 }
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      location: "Kolkata",
-      isLoading: false,
-      displayLocation: "",
-      weather: {},
-    };
-    this.fetchWeather = this.fetchWeather.bind(this);
-  }
+  state = {
+    location: "Kolkata",
+    isLoading: false,
+    displayLocation: "",
+    weather: {},
+  };
 
-  async fetchWeather() {
+  // constructor(props) {
+  //   super(props);
+  //   // this.fetchWeather = this.fetchWeather.bind(this);
+  // }
+
+  fetchWeather = async () => {
     try {
       this.setState({ isLoading: true });
       // 1) Getting location (geocoding)
@@ -54,19 +56,16 @@ class App extends React.Component {
     } finally {
       this.setState({ isLoading: false });
     }
-  }
+  };
+
+  handleChange = (e) => this.setState({ location: e.target.value });
 
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
         <div>
-          <input
-            type="text"
-            placeholder="Search from location.."
-            value={this.state.location}
-            onChange={(e) => this.setState({ location: e.target.value })}
-          />
+          <Input location={this.state.location} onChange={this.handleChange} />
         </div>
         <button onClick={this.fetchWeather}>Get weather</button>
         {this.state.isLoading && <p className="loader">Loading...</p>}
@@ -80,5 +79,4 @@ class App extends React.Component {
     );
   }
 }
-
 export default App;
