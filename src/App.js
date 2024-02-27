@@ -7,7 +7,6 @@ function convertToFlag(countryCode) {
     .toUpperCase()
     .split("")
     .map((char) => {
-      console.log(127397 + char.charCodeAt());
       return 127397 + char.charCodeAt();
     });
   return String.fromCodePoint(...codePoints);
@@ -15,7 +14,7 @@ function convertToFlag(countryCode) {
 
 class App extends React.Component {
   state = {
-    location: "Kolkata",
+    location: "",
     isLoading: false,
     displayLocation: "",
     weather: {},
@@ -27,6 +26,7 @@ class App extends React.Component {
   // }
 
   fetchWeather = async () => {
+    if (this.state.location.length < 2) return this.setState({ weather: {} });
     try {
       this.setState({ isLoading: true });
       // 1) Getting location (geocoding)
@@ -34,7 +34,7 @@ class App extends React.Component {
         `https://geocoding-api.open-meteo.com/v1/search?name=${this.state.location}`
       );
       const geoData = await geoRes.json();
-      console.log(geoData);
+      // console.log(geoData);
 
       if (!geoData.results) throw new Error("Location not found");
 
@@ -52,22 +52,37 @@ class App extends React.Component {
       const weatherData = await weatherRes.json();
       this.setState({ weather: weatherData.daily });
     } catch (err) {
-      console.err(err);
+      console.log(err);
     } finally {
       this.setState({ isLoading: false });
     }
   };
 
-  handleChange = (e) => this.setState({ location: e.target.value });
+  handleLocationChange = (e) => this.setState({ location: e.target.value });
+
+  // useEffect []
+  componentDidMount() {
+    // this.fetchWeather();
+    this.setState({ location: localStorage.getItem("location") || "" });
+  }
+
+  // useEffect [location]
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.location !== prevState.location) this.fetchWeather();
+    localStorage.setItem("location", this.state.location);
+  }
 
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
         <div>
-          <Input location={this.state.location} onChange={this.handleChange} />
+          <Input
+            location={this.state.location}
+            onChange={this.handleLocationChange}
+          />
         </div>
-        <button onClick={this.fetchWeather}>Get weather</button>
+        {/* <button onClick={this.fetchWeather}>Get weather</button> */}
         {this.state.isLoading && <p className="loader">Loading...</p>}
         {this.state.weather.weathercode && (
           <Weather
