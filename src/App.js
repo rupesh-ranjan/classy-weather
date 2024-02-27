@@ -1,35 +1,15 @@
 import React from "react";
-
-function getWeatherIcon(wmoCode) {
-  const icons = new Map([
-    [[0], "☀️"],
-    [[1], "🌤"],
-    [[2], "⛅️"],
-    [[3], "☁️"],
-    [[45, 48], "🌫"],
-    [[51, 56, 61, 66, 80], "🌦"],
-    [[53, 55, 63, 65, 57, 67, 81, 82], "🌧"],
-    [[71, 73, 75, 77, 85, 86], "🌨"],
-    [[95], "🌩"],
-    [[96, 99], "⛈"],
-  ]);
-  const arr = [...icons.keys()].find((key) => key.includes(wmoCode));
-  if (!arr) return "NOT FOUND";
-  return icons.get(arr);
-}
+import Weather from "./Weather";
 
 function convertToFlag(countryCode) {
   const codePoints = countryCode
     .toUpperCase()
     .split("")
-    .map((char) => 127397 + char.charCodeAt());
+    .map((char) => {
+      console.log(127397 + char.charCodeAt());
+      return 127397 + char.charCodeAt();
+    });
   return String.fromCodePoint(...codePoints);
-}
-
-function formatDay(dateStr) {
-  return new Intl.DateTimeFormat("en", {
-    weekday: "short",
-  }).format(new Date(dateStr));
 }
 
 class App extends React.Component {
@@ -58,6 +38,7 @@ class App extends React.Component {
 
       const { latitude, longitude, timezone, name, country_code } =
         geoData.results.at(0);
+
       this.setState({
         displayLocation: `${name} ${convertToFlag(country_code)}`,
       });
@@ -89,6 +70,12 @@ class App extends React.Component {
         </div>
         <button onClick={this.fetchWeather}>Get weather</button>
         {this.state.isLoading && <p className="loader">Loading...</p>}
+        {this.state.weather.weathercode && (
+          <Weather
+            weather={this.state.weather}
+            location={this.state.displayLocation}
+          />
+        )}
       </div>
     );
   }
